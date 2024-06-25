@@ -2,3 +2,4 @@ raw_data/
 WasteClassifier.pem
 task-def.json
 model/
+AWSCLIV2.pkg
