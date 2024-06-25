@@ -1,3 +1,4 @@
 raw_data/
 WasteClassifier.pem
 task-def.json
+model/
