@@ -6,5 +6,3 @@ The best model was then saved as a model (h5, json and keras in model folder) an
 
 This is then connected with an interface from Streamlit which is in a different repo:
 https://github.com/jonasge1992/Waste_Classifier_Streamlit_App
-
-The final app can be tested here: https://wasteclassifier.streamlit.app/
