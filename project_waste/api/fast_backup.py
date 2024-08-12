@@ -16,44 +16,37 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 
-# Define class labels
-class_labels = [
-    'aerosol_cans', 'aluminum_food_cans', 'aluminum_soda_cans', 'cardboard_boxes',
-    'cardboard_packaging', 'clothing', 'coffee_grounds', 'disposable_plastic_cutlery',
-    'eggshells', 'food_waste', 'glass_beverage_bottles', 'glass_cosmetic_containers',
-    'glass_food_jars', 'magazines', 'newspaper', 'office_paper', 'paper_cups',
-    'plastic_cup_lids', 'plastic_detergent_bottles', 'plastic_food_containers',
-    'plastic_shopping_bags', 'plastic_soda_bottles', 'plastic_straws', 'plastic_trash_bags',
-    'plastic_water_bottles', 'shoes', 'steel_food_cans', 'styrofoam_cups',
-    'styrofoam_food_containers', 'tea_bags'
-]
-
-# Define categories mapping
-category_mapping = {
-    'Plastic': [
-        'plastic_water_bottles', 'plastic_soda_bottles', 'plastic_detergent_bottles',
-        'plastic_shopping_bags', 'plastic_trash_bags', 'plastic_food_containers',
-        'disposable_plastic_cutlery', 'plastic_straws', 'plastic_cup_lids'
-    ],
-    'Paper and Cardboard': [
-        'newspaper', 'office_paper', 'magazines', 'cardboard_boxes', 'cardboard_packaging'
-    ],
-    'Glass': [
-        'glass_beverage_bottles', 'glass_food_jars', 'glass_cosmetic_containers'
-    ],
-    'Metal': [
-        'aluminum_soda_cans', 'aluminum_food_cans', 'steel_food_cans', 'aerosol_cans'
-    ],
-    'Organic Waste': [
-        'food_waste', 'eggshells', 'coffee_grounds', 'tea_bags'
-    ],
-    'Textiles': [
-        'clothing', 'shoes'
-    ]
-}
-
-# Reverse mapping to find category by class label
-label_to_category = {label: category for category, labels in category_mapping.items() for label in labels}
+#Define class labels
+class_labels = ['aerosol_cans',
+ 'aluminum_food_cans',
+ 'aluminum_soda_cans',
+ 'cardboard_boxes',
+ 'cardboard_packaging',
+ 'clothing',
+ 'coffee_grounds',
+ 'disposable_plastic_cutlery',
+ 'eggshells',
+ 'food_waste',
+ 'glass_beverage_bottles',
+ 'glass_cosmetic_containers',
+ 'glass_food_jars',
+ 'magazines',
+ 'newspaper',
+ 'office_paper',
+ 'paper_cups',
+ 'plastic_cup_lids',
+ 'plastic_detergent_bottles',
+ 'plastic_food_containers',
+ 'plastic_shopping_bags',
+ 'plastic_soda_bottles',
+ 'plastic_straws',
+ 'plastic_trash_bags',
+ 'plastic_water_bottles',
+ 'shoes',
+ 'steel_food_cans',
+ 'styrofoam_cups',
+ 'styrofoam_food_containers',
+ 'tea_bags']
 
 # Load JSON model architecture
 with open("./model/model.json", "r") as json_file:
@@ -64,6 +57,9 @@ loaded_model = model_from_json(loaded_model_json)
 loaded_model.load_weights("./model/model.h5")
 
 print("Model loaded")
+
+# Retrieve class labels from the model if available
+labels = loaded_model.output_names
 
 # Function to preprocess image
 def preprocess_image(img):
@@ -91,16 +87,11 @@ async def predict(file: UploadFile = File(...)):
 
     # Get predicted class index
     predicted_class_index = int(np.argmax(predictions, axis=1)[0])  # Assuming batch size 1
-    predicted_class_name = class_labels[predicted_class_index]
-
-    # Find the category for the predicted class
-    predicted_category = label_to_category.get(predicted_class_name, "Unknown")
 
     return {
         "predicted_class_index": predicted_class_index,
         "prediction_probabilities": predictions.flatten().astype(float).tolist(),
-        "class_name": predicted_class_name,
-        "category": predicted_category  # Return the category of the predicted class
+        "class_name": class_labels[predicted_class_index]  # Convert numpy array to list for JSON serializability
     }
 
 @app.get("/")
